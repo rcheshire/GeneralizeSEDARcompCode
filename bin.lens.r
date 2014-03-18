@@ -1,7 +1,17 @@
 #FUNCTION TO POOL OR TRUNCATE BINS AND/OR CONVERT 1 CM BINS TO 3 AND 5 CM BINS
 #Created by Rob Cheshire 3/14/2014
 #Last edited 3/18/2014
-#x is an object with fish length in 1-cm bins with no decimal 
+#  DATA - x is an object with fish length in 1-cm bins with no decimal 
+
+#################### options ############################
+# from.bin=min(x)  can set to any value for the minimum size in the comp
+# to.bin=max(x)    can set to any value for the maximum size in the comp
+# by.bin=3,        can set to 3 or 5 cm bins (others can be added)
+# pool.min=TRUE    True converts all values equal or smaller than from.bin to from.bin
+#                  FALSE truncates all values smaller than from.bin 
+# pool.max=FALSE   True converts all values equal or greater than to.bin to to.bin
+#                  FALSE truncates all values larger than from.bin 
+
 bin.lens=function(x,from.bin=min(x),to.bin=max(x),by.bin=3,pool.min=TRUE,pool.max=TRUE){
                   bin.seq=seq(from.bin, to.bin, by=by.bin)
                   pool.cm=rep(0,length(x))
@@ -27,10 +37,10 @@ bin.lens=function(x,from.bin=min(x),to.bin=max(x),by.bin=3,pool.min=TRUE,pool.ma
                     tmp.x=x+2
                     x[tmp.x%in%bin.seq]=x[tmp.x%in%bin.seq]+2 
                   }
-                  print(x)
+                  #print(x)
+                  x
                   }
 
-test=c(5,6,7,9,9,9,9,14,15,21,21,21,21,25)
 #############  notes #####################################################
 # for 1 cm bins function just pools or truncates tails
 # for 3 cm bins, +1,-1 in bin then +1,-1
