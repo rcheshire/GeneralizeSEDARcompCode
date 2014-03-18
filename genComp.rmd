@@ -1,0 +1,60 @@
+```{r title,echo=FALSE,message=FALSE,warning=FALSE}
+#####################################################
+# Project to generalize weighting of length and age
+# compositions for SEDAR assessments
+#
+#Rob Cheshire (rob.cheshire@noaa.gov)
+#created 3/13/2014
+#Last edited 3/14/2014 rtc
+########################################################
+
+require(doBy)
+require(xtable)
+library(reshape2)
+
+#path for data input files
+in.path='W:/Software/Projects/GeneralizeSEDARcompCode/input data'
+#Define work
+assessYr=2014
+species='Species du jour'
+fishery='Fishery gear 1 and 2'
+sedar='SEDAR 41'
+title=paste('Length and Age Compositions',sedar,assessYr,species,fishery,sep=', ')
+
+#Define fishery and strata
+gear=c('handline','longline')
+region=c('North','South')
+tmp=c('Winter','Summer')
+
+
+#import data  [IDEALLY TRIPS COULD BE IDENTIFIED IN LENGTH AND AGE FILES]
+len=read.csv(paste(in.path,'in.len.csv',sep='/'), header=TRUE)
+land=read.csv(paste(in.path,'in.land.csv',sep='/'),header=TRUE)
+l.trips=read.csv(paste(in.path,'in.l.trips.csv',sep='/'),header=TRUE)
+age=read.csv(paste(in.path,'in.age.csv',sep='/'),header=TRUE)
+a.trips=read.csv(paste(in.path,'in.a.trips.csv',sep='/'),header=TRUE)
+```
+`r title` 
+========================================================
+
+`r fishery` length and age compositions were generated for the `r assessYr` assessment of `r species`.  The length compositions were weighted by landings in weight by the temporal and regional strata listed in Table 1.
+
+**Table 1.** Sample size of length age data for each gears 1 and 2 (`r gear[1]` and `r gear[2]`).  Strata for each gear are region 1 and 2 (`r region[1]` and `r region[2]`) and season 1 and 2 `r tmp[1]` and `r tmp[2]`.
+
+```{r samplesize,results='asis',echo=FALSE,message=FALSE,warning=FALSE}
+len.samplesize=summaryBy(len~year+region+tmp,data=len,FUN=length)
+age.samplesize=summaryBy(age~year+region+tmp,data=age,FUN=length)
+samplesize=merge(len.samplesize,l.trips,all=TRUE)
+samplesize=merge(samplesize,age.samplesize,all=TRUE)
+samplesize=merge(samplesize,a.trips,all=TRUE)
+samplesize=samplesize[,c(1,4,2,3,5,6,7,8)]
+colnames(samplesize)=c('Year','Gear','Region','Season','Len.Fish','Len.Trips','Age.Fish','Age.Trips')
+
+for(i in 1:length(gear)){
+table1=xtable(samplesize[samplesize$Gear==i,],digits=0)
+table1[is.na(table1)==TRUE] = 0
+print(table1,type="html",,include.rownames=FALSE)
+}
+```
+Each gear-specific annual length composition (proportion at length) is developed for each region and season.  Those values are multiplied by the proportion of landings associated with the gear, year, region and season.  The compositions are then summed and normalized to sum to 1 annually if needed.
+
